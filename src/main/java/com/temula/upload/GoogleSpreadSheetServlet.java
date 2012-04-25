@@ -14,19 +14,23 @@ import javax.servlet.http.HttpServletResponse;
 import com.sun.jersey.api.client.ClientResponse;
 
 public class GoogleSpreadSheetServlet extends HttpServlet {
-	static final Logger logger = Logger.getLogger(GoogleSpreadsheet.class.getName());
+	static final Logger logger = Logger.getLogger(GoogleSpreadSheetServlet.class.getName());
 
 	public void doPost(HttpServletRequest request,
 			HttpServletResponse response)
 	throws ServletException, IOException {
 		logger.info("entering POST method");
+		logger.info("what the...");
 		GoogleSpreadsheet gu = new GoogleSpreadsheet();
 		
 		try{
 			
+			logger.info("reading...");
 			List<List<Object>>objects = gu.read();
+			logger.info("read...# objects = "+objects.size());
 			
 			for(int h=0;h<objects.size();h++){
+				logger.info("posting..."+h);
 				ClientResponse.Status status = gu.post(objects.get(h));
 
 				

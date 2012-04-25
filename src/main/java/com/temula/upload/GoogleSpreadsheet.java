@@ -4,6 +4,7 @@ package com.temula.upload;
 
 
 import java.lang.reflect.Field;
+
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
@@ -83,7 +84,7 @@ public class GoogleSpreadsheet {
 				break;
 			}
 			catch(Exception e){
-				continue;
+				e.printStackTrace();
 			}
 		}
 		return objects;
@@ -101,7 +102,7 @@ public class GoogleSpreadsheet {
 		Field[]fields = Class.forName(sheetName).getDeclaredFields();
 		Method[]methods = Class.forName(sheetName).getMethods();
 
-
+		
 		List<Object> objects = new ArrayList<Object>();
 		int rows = data.length;
 		int cols = data[0].length;
@@ -198,18 +199,18 @@ public class GoogleSpreadsheet {
 		String ret = stp.bind(objects, st, "list");
 		try{
 			//in case I get a socket exception...total hack for now...
-			logger.warning("generating the client ");
+			logger.info("generating the client ");
 			Client c  = Client.create();
-			logger.warning("getting resource ");
+			logger.info("getting resource ");
 			WebResource r=c.resource(getBaseURI());
 			c.setConnectTimeout(10*1000);
-			logger.warning("posting..."+System.currentTimeMillis());
-			logger.info(r.path("location/space/").getURI().toString());
+			logger.info("posting..."+System.currentTimeMillis());
+			System.out.println("uri posting to:"+r.path("location/space/").getURI().toString());
 			ClientResponse response = r.path("location/space/").type(MediaType.TEXT_HTML).post(ClientResponse.class,ret );
-			logger.warning("getting status...");
+			logger.info("getting status...");
 
 			ClientResponse.Status status = response.getClientResponseStatus();
-			logger.warning("status="+status);
+			logger.info("status="+status);
 			return status;
 		}
 		catch(Exception e){
