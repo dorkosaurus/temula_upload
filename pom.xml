@@ -27,6 +27,20 @@
   		<artifactId>datanucleus-jpa</artifactId>
   		<version>1.1.5</version>
   	</dependency>
+<dependency>
+	<groupId>log4j</groupId>
+	<artifactId>log4j</artifactId>
+	<version>1.2.16</version>
+</dependency>	<dependency>
+		<groupId>net.sf.jtidy</groupId>
+		<artifactId>jtidy</artifactId>
+		<version>r938</version>
+	</dependency>
+  	<dependency>
+  		<groupId>org.antlr</groupId>
+  		<artifactId>stringtemplate</artifactId>
+  		<version>4.0</version>
+  	</dependency>
   	<dependency>
   		<groupId>org.apache.geronimo.specs</groupId>
   		<artifactId>geronimo-jpa_3.0_spec</artifactId>
@@ -142,11 +156,45 @@
 	    <scope>system</scope>
 	     <systemPath>${mysql_connector}</systemPath>
 	</dependency>
-
+	<dependency>
+	    <groupId>google_spreadsheet_service</groupId>
+	    <artifactId>google_spreadsheet_service</artifactId>
+	    <version>3.0</version>
+	    <scope>system</scope>
+	     <systemPath>${spreadsheet_service}</systemPath>
+	</dependency>
+	<dependency>
+	    <groupId>google_spreadsheet_service_meta</groupId>
+	    <artifactId>google_spreadsheet_service_meta</artifactId>
+	    <version>3.0</version>
+	    <scope>system</scope>
+	     <systemPath>${spreadsheet_service_meta}</systemPath>
+	</dependency>
+	<dependency>
+	    <groupId>google_spreadsheet_service_meta</groupId>
+	    <artifactId>google_spreadsheet_service_meta</artifactId>
+	    <version>3.0</version>
+	    <scope>system</scope>
+	     <systemPath>${spreadsheet_service_meta}</systemPath>
+	</dependency>
+	<dependency>
+	    <groupId>google_collect</groupId>
+	    <artifactId>google_collect</artifactId>
+	    <version>1.0</version>
+	    <scope>system</scope>
+	     <systemPath>${google_collect}</systemPath>
+	</dependency>
 	<dependency>
 		<groupId>com.sun.jersey.jersey-test-framework</groupId>
 		<artifactId>jersey-test-framework-grizzly2</artifactId>
 		<version>1.12</version>
+	</dependency>
+	<dependency>
+	    <groupId>vtdxml</groupId>
+	    <artifactId>vtdxml</artifactId>
+	    <version>2.10</version>
+	    <scope>system</scope>
+	     <systemPath>${vtdxml}</systemPath>
 	</dependency>
   </dependencies>
     <properties>
@@ -158,6 +206,10 @@
         <google_sql>${basedir}/src/main/webapp/WEB-INF/lib/google_sql.jar</google_sql>
         <javassist>${basedir}/src/main/webapp/WEB-INF/lib/javassist-3.15.0-GA.jar</javassist>
         <mysql_connector>${basedir}/src/main/webapp/WEB-INF/lib/mysql-connector-java-5.1.18.jar</mysql_connector>
+        <spreadsheet_service>${basedir}/src/main/webapp/WEB-INF/lib/gdata-spreadsheet-3.0.jar</spreadsheet_service>
+        <spreadsheet_service_meta>${basedir}/src/main/webapp/WEB-INF/lib/gdata-spreadsheet-meta-3.0.jar</spreadsheet_service_meta>
+        <google_collect>${basedir}/src/main/webapp/WEB-INF/lib/google-collect-1.0-rc1.jar</google_collect>
+		<vtdxml>${basedir}/src/main/webapp/WEB-INF/lib/vtd-xml.jar</vtdxml>
 	</properties>
 
 

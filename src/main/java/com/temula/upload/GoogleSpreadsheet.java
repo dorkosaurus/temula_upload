@@ -2,17 +2,19 @@ package com.temula.upload;
 
 
 
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
-import org.apache.log4j.Logger;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
@@ -28,60 +30,65 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.temula.StringTemplateProcessor;
 public class GoogleSpreadsheet {
-	static final Logger logger = Logger.getLogger(GoogleSpreadsheet.class);
+	static final Logger logger = Logger.getLogger(GoogleSpreadsheet.class.getName());
 	final static String SPREADSHEET_NAME="temula_spaces";
-	
-	
-	public static void main(String args[])throws Exception{
-		GoogleSpreadsheet gu = new GoogleSpreadsheet();
-		gu.read();
-	}
+	ResourceBundle resourceBundle = ResourceBundle.getBundle("temulaupload");
+
 	public List<List<Object>> read() throws Exception {
-	    String USERNAME = "temulaupload@gmail.com";
-	    String PASSWORD = "vivekraj";
+		String USERNAME = "temulaupload@gmail.com";
+		String PASSWORD = "vivekraj";
+		List<List<Object>> objects = new ArrayList<List<Object>>();
+		for(int i=0;i<5;i++){
 
-	    SpreadsheetService service = new SpreadsheetService("MySpreadsheetIntegration-v1");
-	    service.setUserCredentials(USERNAME, PASSWORD);
-	    
-	    // Define the URL to request.  This should never change.
-	    URL SPREADSHEET_FEED_URL = new URL(
-	        "https://spreadsheets.google.com/feeds/spreadsheets/private/full");
+			try{
 
-	    // Make a request to the API and get all spreadsheets.
-	    SpreadsheetFeed feed = service.getFeed(SPREADSHEET_FEED_URL, SpreadsheetFeed.class);
-	    List<SpreadsheetEntry> spreadsheets = feed.getEntries();
-	    
-	    // Iterate through all of the spreadsheets returned
-	    SpreadsheetEntry ourSpreadSheet=null;
-	    for (SpreadsheetEntry spreadsheet : spreadsheets) {
-	    	if(spreadsheet.getTitle().getPlainText().equals(SPREADSHEET_NAME)){
-	    		ourSpreadSheet=spreadsheet;
-	    		break;
-	    	}
-	    }
-	    
-	    if(ourSpreadSheet==null)throw new Exception("could not find spreadsheet "+SPREADSHEET_NAME);
+				SpreadsheetService service = new SpreadsheetService("MySpreadsheetIntegration-v1");
+				service.setUserCredentials(USERNAME, PASSWORD);
 
-	    List<List<Object>> objects = new ArrayList<List<Object>>();
-	    
-	    for(WorksheetEntry sheet: ourSpreadSheet.getWorksheets()){
-		  URL cellFeedUrl =  sheet.getCellFeedUrl();
-		  
-		  CellFeed cellFeed = service.getFeed(cellFeedUrl, CellFeed.class);
-		  String[][]data = new String[cellFeed.getRowCount()][cellFeed.getColCount()];
-		  
-		  for (CellEntry cell : cellFeed.getEntries()) {
-			  int row = cell.getCell().getRow();
-			  int col = cell.getCell().getCol();
-			  int rowIdx = row-1;
-			  int colIdx = col-1;
-			  data[rowIdx][colIdx]=cell.getPlainTextContent();
-		  }
-		  objects.add(processData(sheet.getTitle().getPlainText(),data));
-	    }
-	    return objects;
+				// Define the URL to request.  This should never change.
+				URL SPREADSHEET_FEED_URL = new URL(
+				"https://spreadsheets.google.com/feeds/spreadsheets/private/full");
+
+				// Make a request to the API and get all spreadsheets.
+				SpreadsheetFeed feed = service.getFeed(SPREADSHEET_FEED_URL, SpreadsheetFeed.class);
+				List<SpreadsheetEntry> spreadsheets = feed.getEntries();
+
+				// Iterate through all of the spreadsheets returned
+				SpreadsheetEntry ourSpreadSheet=null;
+				for (SpreadsheetEntry spreadsheet : spreadsheets) {
+					if(spreadsheet.getTitle().getPlainText().equals(SPREADSHEET_NAME)){
+						ourSpreadSheet=spreadsheet;
+						break;
+					}
+				}
+
+				if(ourSpreadSheet==null)throw new Exception("could not find spreadsheet "+SPREADSHEET_NAME);
+
+
+				for(WorksheetEntry sheet: ourSpreadSheet.getWorksheets()){
+					URL cellFeedUrl =  sheet.getCellFeedUrl();
+
+					CellFeed cellFeed = service.getFeed(cellFeedUrl, CellFeed.class);
+					String[][]data = new String[cellFeed.getRowCount()][cellFeed.getColCount()];
+
+					for (CellEntry cell : cellFeed.getEntries()) {
+						int row = cell.getCell().getRow();
+						int col = cell.getCell().getCol();
+						int rowIdx = row-1;
+						int colIdx = col-1;
+						data[rowIdx][colIdx]=cell.getPlainTextContent();
+					}
+					objects.add(processData(sheet.getTitle().getPlainText(),data));
+				}
+				break;
+			}
+			catch(Exception e){
+				continue;
+			}
+		}
+		return objects;
 	}
-	
+
 	private List<Object> processData(String sheetName,String[][]data)throws Exception{
 		if(sheetName==null)throw new Exception("null sheet name");
 		if(sheetName.trim().length()==0)throw new Exception("Sheet name empty string");
@@ -90,11 +97,11 @@ public class GoogleSpreadsheet {
 		if(data[0].length==0)throw new Exception("data has no cols");
 
 		sheetName=sheetName.trim();
-		
+
 		Field[]fields = Class.forName(sheetName).getDeclaredFields();
 		Method[]methods = Class.forName(sheetName).getMethods();
-		
-		
+
+
 		List<Object> objects = new ArrayList<Object>();
 		int rows = data.length;
 		int cols = data[0].length;
@@ -130,7 +137,7 @@ public class GoogleSpreadsheet {
 			Object obj = Class.forName(sheetName).newInstance();
 			int numAdded=0;
 			for(int col=0;col<cols;col++){
-				
+
 				String datum = data[row][col];
 				if(datum==null)continue;
 				if(datum.trim().length()==0)continue;
@@ -165,38 +172,56 @@ public class GoogleSpreadsheet {
 		}	
 		return objects;
 	}
-	
+
 	public ClientResponse.Status  post(List<Object> objects)throws Exception{
 		if(objects==null)throw new Exception("null list");
 		if(objects.size()==0)throw new Exception("empty list");
-		
+
+
+		logger.warning("posting "+objects.size()+" objects");
+
 		String className = objects.get(0).getClass().getName();
 		String classNameLC = className.toLowerCase();
-		
+
 		//DANGER - ASSUMING com. ARE THE FIRST FOUR CHARACTERS 
 		String path = classNameLC.replace('.', '/');
 		String templatePath = "/templates/"+path+".stg";
-		logger.info(templatePath);
 
-		 char TEMPLATE_START_CHAR='^';
-		 char TEMPLATE_END_CHAR='$';
+		char TEMPLATE_START_CHAR='^';
+		char TEMPLATE_END_CHAR='$';
 
-		
+
 		String path2File = this.getClass().getResource(templatePath).getPath();
-		 STGroup g = new STGroupFile(path2File,TEMPLATE_START_CHAR,TEMPLATE_END_CHAR);
-		 ST st = g.getInstanceOf("list");
-		 StringTemplateProcessor stp = new StringTemplateProcessor();
-		 String ret = stp.bind(objects, st, "list");
-		 System.out.println(ret);
-		 Client c  = Client.create();
-		 WebResource r=c.resource(getBaseURI());
-		 ClientResponse response = r.path("location/space/").type(MediaType.TEXT_HTML).post(ClientResponse.class,ret );
-		 ClientResponse.Status status = response.getClientResponseStatus();
-		 return status;
+		STGroup g = new STGroupFile(path2File,TEMPLATE_START_CHAR,TEMPLATE_END_CHAR);
+		ST st = g.getInstanceOf("list");
+		StringTemplateProcessor stp = new StringTemplateProcessor();
+		String ret = stp.bind(objects, st, "list");
+		try{
+			//in case I get a socket exception...total hack for now...
+			logger.warning("generating the client ");
+			Client c  = Client.create();
+			logger.warning("getting resource ");
+			WebResource r=c.resource(getBaseURI());
+			c.setConnectTimeout(10*1000);
+			logger.warning("posting..."+System.currentTimeMillis());
+			logger.info(r.path("location/space/").getURI().toString());
+			ClientResponse response = r.path("location/space/").type(MediaType.TEXT_HTML).post(ClientResponse.class,ret );
+			logger.warning("getting status...");
+
+			ClientResponse.Status status = response.getClientResponseStatus();
+			logger.warning("status="+status);
+			return status;
+		}
+		catch(Exception e){
+			logger.warning(""+System.currentTimeMillis()+e.getMessage());
+		}
+		return null;
+	}
+
+	private  URI getBaseURI(){
+		return UriBuilder.fromUri(resourceBundle.getString("baseURI")).port(Integer.parseInt(resourceBundle.getString("baseURIPort"))).build();
 	}
 	
-	private static URI getBaseURI() {
-		return UriBuilder.fromUri("http://localhost/temula/").port(8080).build();
-	}
+	                                       
 
 }
