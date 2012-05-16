@@ -34,6 +34,7 @@ public class GoogleSpreadsheet {
 	static final Logger logger = Logger.getLogger(GoogleSpreadsheet.class.getName());
 	final static String SPREADSHEET_NAME="temula_spaces";
 	ResourceBundle resourceBundle = ResourceBundle.getBundle("temulaupload");
+	ResourceBundle resourceBundleColumnMap = ResourceBundle.getBundle("googleSpreadsheetMapping");
 
 	public List<List<Object>> read() throws Exception {
 		String USERNAME = "temulaupload@gmail.com";
@@ -107,18 +108,29 @@ public class GoogleSpreadsheet {
 		int rows = data.length;
 		int cols = data[0].length;
 		List<Field> fieldList = new ArrayList<Field>(cols);
+
 		List<Method> methodList = new ArrayList<Method>(cols);
 
+		logger.info(""+cols+" columns");
+		
 		//for each field
 		for(Field field:fields){
 			String fieldNameLC = field.getName().toLowerCase();
 
-			//find a matching column header in the spreadsheet.  
+			//for each column header in the spreadsheet.  
 			for(int col=0;col<cols;col++){
-				String colName = data[0][col];
+				String colNameGS = data[0][col];
+				if(colNameGS==null || colNameGS.trim().length()==0)continue;
+
+				//map the column header to the field 
+				String colName = this.resourceBundleColumnMap.getString(colNameGS);
 				if(colName==null || colName.trim().length()==0)continue;
+				
+				
 				String colNameLC = colName.toLowerCase();
 				if(colNameLC.equals(fieldNameLC)){
+					logger.info(colName+":"+colNameGS+":"+col);
+
 					//save the field when we find a match
 					fieldList.add(col, field);
 
@@ -163,6 +175,10 @@ public class GoogleSpreadsheet {
 						itg=-1;
 					}
 					method.invoke(obj, itg);
+				}
+				else if(className.equals("double")){
+					 Double doub = new Double(datum);
+					 method.invoke(obj, doub);
 				}
 				else{
 					method.invoke(obj, datum);
