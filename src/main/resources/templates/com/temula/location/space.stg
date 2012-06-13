@@ -238,6 +238,12 @@ longxhtml(p)::= <<
 	
 	  <dt>Bottled Water</dt>
 	  <dd><span itemprop="hasBottledWater">^p.hasBottledWater$</span></dd>
+
+	  <dt>Small image</dt>
+	  <dd><span itemprop="smallImageId">^p.smallImageId$</span></dd>
+
+	  <dt>Large image</dt>
+	  <dd><span itemprop="largeImageId">^p.largeImageId$</span></dd>
 	</dl>
 </div>  
 >>

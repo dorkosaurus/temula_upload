@@ -210,7 +210,7 @@ public class GoogleSpreadsheet {
 
 		String path2File = this.getClass().getResource(templatePath).getPath();
 		STGroup g = new STGroupFile(path2File,TEMPLATE_START_CHAR,TEMPLATE_END_CHAR);
-		ST st = g.getInstanceOf("list");
+		ST st = g.getInstanceOf("longlist");
 		StringTemplateProcessor stp = new StringTemplateProcessor();
 		String ret = stp.bind(objects, st, "list");
 		try{
